@@ -49,3 +49,21 @@ will need to install a cross-compiler gcc suite capable of producing
 x86 ELF binaries (see https://pdos.csail.mit.edu/6.828/).
 Then run "make TOOLPREFIX=i386-jos-elf-". Now install the QEMU PC
 simulator and run "make qemu".
+
+
+
+# xv6 Priority-Based Scheduler
+
+This repository contains a modified version of the xv6 operating system kernel with a **Priority-Based Scheduler** implementation.
+
+## Feature Implemented
+**Option A: Priority-Based Scheduler**
+- Replaced the default Round-Robin scheduler with a priority-based logic.
+- Added a `priority` attribute to the Process Control Block (PCB).
+- Implemented a new system call `set_priority(int)` to allow dynamic priority adjustments.
+- Higher integer values indicate higher priority (e.g., 20 runs before 10).
+
+## How to Run
+1. **Clean the build:**
+   ```bash
+   make clean

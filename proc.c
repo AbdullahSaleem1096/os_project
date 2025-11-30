@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 10;
 
   release(&ptable.lock);
 
@@ -324,32 +325,44 @@ scheduler(void)
 {
   struct proc *p;
   struct cpu *c = mycpu();
+  struct proc *high_p = 0; // Pointer to the highest priority process
+
   c->proc = 0;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
-    // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+    
+    // Reset highest priority pointer for this iteration
+    high_p = 0;
+
+    // LOOP 1: Find the process with the highest priority
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+      // If we haven't found a candidate yet, OR this one has higher priority
+      // We choose the one with the highest value (e.g., 20 runs before 10)
+      if(high_p == 0 || p->priority > high_p->priority){
+        high_p = p;
+      }
+    }
+
+    // LOOP 2: If a process was found, run it
+    if(high_p != 0){
+      p = high_p;       // Use the found high-priority process
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-
-      swtch(&(c->scheduler), p->context);
+      
+      swtch(&c->scheduler, p->context);
+      
       switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
       c->proc = 0;
     }
+
     release(&ptable.lock);
 
   }
@@ -531,4 +544,20 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+
+int
+set_priority(int new_priority)
+{
+  struct proc *p = myproc(); // Get the calling process
+  acquire(&ptable.lock);
+  p->priority = new_priority;
+  release(&ptable.lock);
+  
+  // If we lowered our own priority, we should yield to let others run
+  if(new_priority < p->priority) 
+    yield();
+    
+  return new_priority;
 }

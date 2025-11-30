@@ -89,3 +89,13 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_set_priority(void)
+{
+  int priority;
+  // Fetch the integer argument from the stack
+  if(argint(0, &priority) < 0)
+    return -1;
+  return set_priority(priority);
+}
