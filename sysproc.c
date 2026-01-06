@@ -7,6 +7,67 @@
 #include "mmu.h"
 #include "proc.h"
 
+#include "spinlock.h"
+
+#define BUFFER_SIZE 5
+
+int buffer[BUFFER_SIZE];
+int in = 0;
+int out = 0;
+int count = 0;
+
+struct spinlock pc_lock;
+
+// wait channels
+void *not_full = (void*)1;
+void *not_empty = (void*)2;
+
+int
+sys_produce(void)
+{
+    int item;
+
+    if (argint(0, &item) < 0)
+        return -1;
+
+    acquire(&pc_lock);
+
+    while (count == BUFFER_SIZE) {
+        sleep(not_full, &pc_lock);
+    }
+
+    buffer[in] = item;
+    in = (in + 1) % BUFFER_SIZE;
+    count++;
+
+    wakeup(not_empty);
+    release(&pc_lock);
+
+    return 0;
+}
+
+int
+sys_consume(void)
+{
+    int item;
+
+    acquire(&pc_lock);
+
+    while (count == 0) {
+        sleep(not_empty, &pc_lock);
+    }
+
+    item = buffer[out];
+    out = (out + 1) % BUFFER_SIZE;
+    count--;
+
+    wakeup(not_full);
+    release(&pc_lock);
+
+    return item;
+}
+
+
 int
 sys_fork(void)
 {
