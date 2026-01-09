@@ -11,6 +11,8 @@
 
 #define CR4_PSE         0x00000010      // Page size extension
 
+#define PTE_S 0x400   // Shared page flag
+
 // various segment selectors.
 #define SEG_KCODE 1  // kernel code
 #define SEG_KDATA 2  // kernel data+stack

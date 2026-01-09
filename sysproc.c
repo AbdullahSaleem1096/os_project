@@ -23,6 +23,36 @@ void *not_full = (void*)1;
 void *not_empty = (void*)2;
 
 int
+sys_mapshared(void)
+{
+  struct proc *p = myproc();
+  char *mem;
+  uint va;
+
+  // Shared page goes at the end
+  va = PGROUNDUP(p->sz);
+
+  // Allocate physical page
+  mem = kalloc();
+  if(mem == 0)
+    return -1;
+
+  memset(mem, 0, PGSIZE);
+
+  // Map page: user + writable + shared
+  if(mappages(p->pgdir, (void*)va, PGSIZE,
+              V2P(mem), PTE_W | PTE_U | PTE_S) < 0){
+    kfree(mem);
+    return -1;
+  }
+
+  // Increase process size
+  p->sz = va + PGSIZE;
+
+  return va;
+}
+
+int
 sys_mmap(void)
 {
   int nbytes;

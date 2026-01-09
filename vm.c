@@ -252,6 +252,8 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 // newsz.  oldsz and newsz need not be page-aligned, nor does newsz
 // need to be less than oldsz.  oldsz can be larger than the actual
 // process size.  Returns the new process size.
+
+/*
 int
 deallocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 {
@@ -277,6 +279,43 @@ deallocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   }
   return newsz;
 }
+
+*/
+
+int
+deallocuvm(pde_t *pgdir, uint oldsz, uint newsz)
+{
+  pte_t *pte;
+  uint a, pa;
+
+  if(newsz >= oldsz)
+    return oldsz;
+
+  a = PGROUNDUP(newsz);
+  for(; a < oldsz; a += PGSIZE){
+    pte = walkpgdir(pgdir, (char*)a, 0);
+    if(!pte)
+      a = PGADDR(PDX(a) + 1, 0, 0) - PGSIZE;
+    else if((*pte & PTE_P) != 0){
+
+      // 🔹 SHARED PAGE CASE
+      if(*pte & PTE_S){
+        *pte = 0;
+        continue;
+      }
+
+      pa = PTE_ADDR(*pte);
+      if(pa == 0)
+        panic("kfree");
+
+      char *v = P2V(pa);
+      kfree(v);
+      *pte = 0;
+    }
+  }
+  return newsz;
+}
+
 
 // Free a page table and all the physical memory pages
 // in the user part.
@@ -312,6 +351,8 @@ clearpteu(pde_t *pgdir, char *uva)
 
 // Given a parent process's page table, create a copy
 // of it for a child.
+
+/*
 pde_t*
 copyuvm(pde_t *pgdir, uint sz)
 {
@@ -343,6 +384,52 @@ bad:
   freevm(d);
   return 0;
 }
+*/
+
+pde_t*
+copyuvm(pde_t *pgdir, uint sz)
+{
+  pde_t *d;
+  pte_t *pte;
+  uint pa, i, flags;
+  char *mem;
+
+  if((d = setupkvm()) == 0)
+    return 0;
+  for(i = 0; i < sz; i += PGSIZE){
+    pte = walkpgdir(pgdir, (void *) i, 0);
+    if(!pte || !(*pte & PTE_P))
+      panic("copyuvm: pte not present");
+
+    // SHARED PAGE CASE
+    if(*pte & PTE_S){
+      if(mappages(d, (void*)i, PGSIZE,
+                  PTE_ADDR(*pte),
+                  PTE_FLAGS(*pte)) < 0)
+        goto bad;
+      continue;
+    }
+    if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
+      panic("copyuvm: pte should exist");
+    if(!(*pte & PTE_P))
+      panic("copyuvm: page not present");
+    pa = PTE_ADDR(*pte);
+    flags = PTE_FLAGS(*pte);
+    if((mem = kalloc()) == 0)
+      goto bad;
+    memmove(mem, (char*)P2V(pa), PGSIZE);
+    if(mappages(d, (void*)i, PGSIZE, V2P(mem), flags) < 0) {
+      kfree(mem);
+      goto bad;
+    }
+  }
+  return d;
+
+bad:
+  freevm(d);
+  return 0;
+}
+
 
 //PAGEBREAK!
 // Map user virtual address to kernel address.

@@ -188,7 +188,8 @@ int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
 int             count_physical_pages(struct proc *);
 int             count_pt_pages(struct proc *);
-int             mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm);
+//int             mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm);
+int             mappages(pde_t*, void*, uint, uint, int);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
