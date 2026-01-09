@@ -23,6 +23,12 @@ void *not_full = (void*)1;
 void *not_empty = (void*)2;
 
 int
+sys_getptsize(void)
+{
+  return count_pt_pages(myproc());
+}
+
+int
 sys_numvp(void)
 {
   struct proc *p = myproc();

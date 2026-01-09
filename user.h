@@ -43,3 +43,4 @@ int produce(int item);
 int consume(void);
 int numvp(void);
 int numpp(void);
+int getptsize(void);

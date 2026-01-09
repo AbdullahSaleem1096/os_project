@@ -400,6 +400,21 @@ count_physical_pages(struct proc *p)
   return count;
 }
 
+int
+count_pt_pages(struct proc *p)
+{
+  pde_t *pgdir = p->pgdir;
+  int count = 1;  // page directory itself
+  int i;
+
+  for(i = 0; i < NPDENTRIES; i++){
+    if(pgdir[i] & PTE_P)
+      count++;
+  }
+  return count;
+}
+
+
 
 //PAGEBREAK!
 // Blank page.
