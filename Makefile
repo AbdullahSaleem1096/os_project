@@ -186,7 +186,8 @@ UPROGS=\
 	_test_basic\
     _test_stress\
     _test_edge\
-	_pc
+	_pc\
+	_numvp_test
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

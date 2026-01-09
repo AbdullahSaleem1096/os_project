@@ -23,6 +23,14 @@ void *not_full = (void*)1;
 void *not_empty = (void*)2;
 
 int
+sys_numvp(void)
+{
+  struct proc *p = myproc();
+  return (p->sz + PGSIZE - 1) / PGSIZE;
+}
+
+
+int
 sys_produce(void)
 {
     int item;

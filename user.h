@@ -41,3 +41,4 @@ int atoi(const char*);
 
 int produce(int item);
 int consume(void);
+int numvp(void);

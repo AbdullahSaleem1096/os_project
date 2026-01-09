@@ -106,6 +106,7 @@ extern int sys_uptime(void);
 extern int sys_set_priority(void);
 extern int sys_produce(void);
 extern int sys_consume(void);
+extern int sys_numvp(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -132,6 +133,7 @@ static int (*syscalls[])(void) = {
 [SYS_set_priority] sys_set_priority,
 [SYS_produce]  sys_produce,
 [SYS_consume]  sys_consume,
+[SYS_numvp]    sys_numvp,
 };
 
 void
