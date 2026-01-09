@@ -385,6 +385,22 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
+int
+count_physical_pages(struct proc *p)
+{
+  pte_t *pte;
+  uint va;
+  int count = 0;
+
+  for(va = 0; va < p->sz; va += PGSIZE){
+    pte = walkpgdir(p->pgdir, (void *)va, 0);
+    if(pte && (*pte & PTE_P))
+      count++;
+  }
+  return count;
+}
+
+
 //PAGEBREAK!
 // Blank page.
 //PAGEBREAK!

@@ -29,6 +29,12 @@ sys_numvp(void)
   return (p->sz + PGSIZE - 1) / PGSIZE;
 }
 
+int
+sys_numpp(void)
+{
+  return count_physical_pages(myproc());
+}
+
 
 int
 sys_produce(void)

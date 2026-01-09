@@ -107,6 +107,7 @@ extern int sys_set_priority(void);
 extern int sys_produce(void);
 extern int sys_consume(void);
 extern int sys_numvp(void);
+extern int sys_numpp(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -134,6 +135,7 @@ static int (*syscalls[])(void) = {
 [SYS_produce]  sys_produce,
 [SYS_consume]  sys_consume,
 [SYS_numvp]    sys_numvp,
+[SYS_numpp]    sys_numpp,
 };
 
 void
