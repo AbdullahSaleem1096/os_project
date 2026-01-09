@@ -44,3 +44,4 @@ int consume(void);
 int numvp(void);
 int numpp(void);
 int getptsize(void);
+int mmap(int nbytes);

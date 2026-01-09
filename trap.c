@@ -77,6 +77,49 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
+  case T_PGFLT: {
+    uint va;
+    char *mem;
+    struct proc *p = myproc();
+
+    // Get faulting virtual address
+    va = rcr2();
+    va = PGROUNDDOWN(va);
+
+    // If fault happened in kernel → panic
+    if((tf->cs & 3) == 0){
+      cprintf("kernel page fault at va 0x%x\n", va);
+      panic("page fault");
+    }
+
+    // Invalid access: outside process virtual size
+    if(va >= p->sz){
+      cprintf("invalid page fault va=0x%x sz=0x%x\n", va, p->sz);
+      p->killed = 1;
+      break;
+    }
+
+    // Allocate physical memory
+    mem = kalloc();
+    if(mem == 0){
+      cprintf("out of memory on page fault\n");
+      p->killed = 1;
+      break;
+    }
+
+    memset(mem, 0, PGSIZE);
+
+    // Map virtual page to physical page
+    if(mappages(p->pgdir, (void*)va, PGSIZE,
+                V2P(mem), PTE_W | PTE_U) < 0){
+      kfree(mem);
+      p->killed = 1;
+      break;
+    }
+
+    // Successfully handled page fault
+    return;
+  }
 
   //PAGEBREAK: 13
   default:

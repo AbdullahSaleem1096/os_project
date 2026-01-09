@@ -23,6 +23,25 @@ void *not_full = (void*)1;
 void *not_empty = (void*)2;
 
 int
+sys_mmap(void)
+{
+  int nbytes;
+  struct proc *p = myproc();
+  uint addr;
+
+  if(argint(0, &nbytes) < 0)
+    return -1;
+
+  if(nbytes <= 0 || nbytes % PGSIZE != 0)
+    return -1;
+
+  addr = p->sz;        // start address
+  p->sz += nbytes;     // increase virtual memory ONLY
+
+  return addr;
+}
+
+int
 sys_getptsize(void)
 {
   return count_pt_pages(myproc());

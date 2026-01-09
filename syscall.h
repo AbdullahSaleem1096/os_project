@@ -26,3 +26,4 @@
 #define SYS_numvp  25
 #define SYS_numpp  26
 #define SYS_getptsize  27
+#define SYS_mmap  28

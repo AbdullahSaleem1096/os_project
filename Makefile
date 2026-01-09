@@ -189,7 +189,8 @@ UPROGS=\
 	_pc\
 	_numvp_test\
 	_numpp_test\
-	_getptsize_test
+	_getptsize_test\
+	_mmap_test\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
