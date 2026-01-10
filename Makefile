@@ -192,6 +192,7 @@ UPROGS=\
 	_getptsize_test\
 	_mmap_test\
 	_mapshared_test\
+	_getshared_test\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

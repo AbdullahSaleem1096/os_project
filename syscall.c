@@ -111,6 +111,7 @@ extern int sys_numpp(void);
 extern int sys_getptsize(void);
 extern int sys_mmap(void);
 extern int sys_mapshared(void);
+extern int sys_getshared(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -142,6 +143,7 @@ static int (*syscalls[])(void) = {
 [SYS_getptsize]    sys_getptsize,
 [SYS_mmap]   sys_mmap,
 [SYS_mapshared]   sys_mapshared,
+[SYS_getshared]   sys_getshared,
 };
 
 void

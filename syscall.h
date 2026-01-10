@@ -27,5 +27,6 @@
 #define SYS_numpp  26
 #define SYS_getptsize  27
 #define SYS_mmap  28
-#define SYS_mapshared  24   // pick next free number
+#define SYS_mapshared  29 
+#define SYS_getshared  30 
 

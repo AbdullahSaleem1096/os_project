@@ -8,6 +8,7 @@
 #include "proc.h"
 
 #include "spinlock.h"
+pte_t* getpte(pde_t*, void*);
 
 #define BUFFER_SIZE 5
 
@@ -21,6 +22,28 @@ struct spinlock pc_lock;
 // wait channels
 void *not_full = (void*)1;
 void *not_empty = (void*)2;
+
+int
+count_shared_pages(struct proc *p)
+{
+  pte_t *pte;
+  uint va;
+  int count = 0;
+
+  for(va = 0; va < p->sz; va += PGSIZE){
+    //pte = walkpgdir(p->pgdir, (char*)va, 0);
+    pte = getpte(p->pgdir, (void*)va);
+    if(pte && (*pte & PTE_P) && (*pte & PTE_S))
+      count++;
+  }
+  return count;
+}
+
+int
+sys_getshared(void)
+{
+  return count_shared_pages(myproc());
+}
 
 int
 sys_mapshared(void)

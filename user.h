@@ -46,3 +46,4 @@ int numpp(void);
 int getptsize(void);
 int mmap(int nbytes);
 void* mapshared(void);
+int getshared(void);

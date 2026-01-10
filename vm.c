@@ -7,6 +7,8 @@
 #include "proc.h"
 #include "elf.h"
 
+pte_t* getpte(pde_t *pgdir, void *va);
+
 extern char data[];  // defined by kernel.ld
 pde_t *kpgdir;  // for use in scheduler()
 
@@ -52,6 +54,12 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
     *pde = V2P(pgtab) | PTE_P | PTE_W | PTE_U;
   }
   return &pgtab[PTX(va)];
+}
+
+pte_t*
+getpte(pde_t *pgdir, void *va)
+{
+  return walkpgdir(pgdir, va, 0);
 }
 
 // Create PTEs for virtual addresses starting at va that refer to
