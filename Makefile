@@ -193,6 +193,7 @@ UPROGS=\
 	_mmap_test\
 	_mapshared_test\
 	_getshared_test\
+	_unmapshared_test\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

@@ -10,6 +10,9 @@ struct sleeplock;
 struct stat;
 struct superblock;
 
+typedef uint pte_t;
+typedef uint pde_t;
+
 // bio.c
 void            binit(void);
 struct buf*     bread(uint, uint);
@@ -68,6 +71,8 @@ char*           kalloc(void);
 void            kfree(char*);
 void            kinit1(void*, void*);
 void            kinit2(void*, void*);
+void            inc_refcount(uint);
+int             dec_refcount(uint);
 
 // kbd.c
 void            kbdintr(void);
@@ -190,6 +195,7 @@ int             count_physical_pages(struct proc *);
 int             count_pt_pages(struct proc *);
 //int             mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm);
 int             mappages(pde_t*, void*, uint, uint, int);
+pte_t*          walkpgdir(pde_t*, const void*, int);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

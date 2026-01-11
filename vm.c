@@ -34,7 +34,7 @@ seginit(void)
 // Return the address of the PTE in page table pgdir
 // that corresponds to virtual address va.  If alloc!=0,
 // create any required page table pages.
-static pte_t *
+pte_t *
 walkpgdir(pde_t *pgdir, const void *va, int alloc)
 {
   pde_t *pde;
@@ -50,7 +50,7 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
     memset(pgtab, 0, PGSIZE);
     // The permissions here are overly generous, but they can
     // be further restricted by the permissions in the page table
-    // entries, if necessary.
+    // entries, if necessary. 
     *pde = V2P(pgtab) | PTE_P | PTE_W | PTE_U;
   }
   return &pgtab[PTX(va)];
@@ -429,6 +429,14 @@ copyuvm(pde_t *pgdir, uint sz)
     if(mappages(d, (void*)i, PGSIZE, V2P(mem), flags) < 0) {
       kfree(mem);
       goto bad;
+    }
+    if(*pte & PTE_S){
+      inc_refcount(PTE_ADDR(*pte));
+      if(mappages(d, (void*)i, PGSIZE,
+                  PTE_ADDR(*pte),
+                  PTE_FLAGS(*pte)) < 0)
+        goto bad;
+      continue;
     }
   }
   return d;

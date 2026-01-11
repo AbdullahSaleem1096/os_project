@@ -24,6 +24,48 @@ void *not_full = (void*)1;
 void *not_empty = (void*)2;
 
 int
+sys_unmapshared(void)
+{
+  uint va;
+  pte_t *pte;
+  uint pa;
+  struct proc *p = myproc();
+
+  // Get virtual address
+  if(argint(0, (int*)&va) < 0)
+    return -1;
+
+  // Must be page-aligned
+  if(va % PGSIZE != 0)
+    return -1;
+
+  // Walk page table
+  pte = walkpgdir(p->pgdir, (void*)va, 0);
+  if(pte == 0)
+    return -1;
+
+  // Must be present and shared
+  if(!(*pte & PTE_P) || !(*pte & PTE_S))
+    return -1;
+
+  // Get physical address
+  pa = PTE_ADDR(*pte);
+
+  // Remove mapping
+  *pte = 0;
+
+  // Decrement refcount and free if last
+  if(dec_refcount(pa) == 0)
+    kfree(P2V(pa));
+
+  // Flush TLB
+  lcr3(V2P(p->pgdir));
+
+  return 0;
+}
+
+
+int
 count_shared_pages(struct proc *p)
 {
   pte_t *pte;

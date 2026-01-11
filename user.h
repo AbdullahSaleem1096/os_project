@@ -47,3 +47,4 @@ int getptsize(void);
 int mmap(int nbytes);
 void* mapshared(void);
 int getshared(void);
+int unmapshared(void *va);
